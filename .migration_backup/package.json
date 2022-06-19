@@ -13,7 +13,7 @@
     "@angular/platform-browser-dynamic": "~13.2.0",
     "@angular/router": "~13.2.0",
     "@nativescript/angular": "^13.0.0",
-    "@nativescript/core": "~8.2.4",
+    "@nativescript/core": "8.2.4-next-06-04-2022-2440349856",
     "@nativescript/theme": "~3.0.2",
     "nativescript-barcodescanner": "^4.1.2",
     "rxjs": "~7.5.0",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.2.0",
     "@angular/compiler-cli": "~13.2.0",
-    "@nativescript/android": "8.2.3",
+    "@nativescript/android": "8.0.0",
     "@nativescript/types": "~8.2.0",
     "@nativescript/webpack": "~5.0.6",
     "@ngtools/webpack": "~13.2.0",

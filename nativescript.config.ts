@@ -1,7 +1,7 @@
 import { NativeScriptConfig } from '@nativescript/core';
 
 export default {
-  id: 'org.nativescript.BarcodeScanner',
+  id: 'org.nativescript.scanner',
   appPath: 'src',
   appResourcesPath: 'App_Resources',
   android: {
