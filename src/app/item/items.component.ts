@@ -83,7 +83,7 @@ export class ItemsComponent implements OnInit {
   onSaveEdit() {
     this.showEditForm = false;
     const result = this.findBarcodeInListIndex(this.activeBarcodeItem.barcode);
-    if (result && result > 0) {
+    if ( result >= 0) {
       console.log("we found index" + result);
       this.barcodeList[result] = this.activeBarcodeItem;
       setString("barcodeList", JSON.stringify(this.barcodeList));

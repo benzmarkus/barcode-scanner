@@ -39,6 +39,7 @@ export class ScanbarcodeComponent implements OnInit {
   ngOnInit(): void {
     this.startScanBarcode();
     if (getString("barcodeList")) {
+      // console.log(JSON.parse(getString("barcodeList")))
       this.barcodeList = JSON.parse(getString("barcodeList"));
     }
     console.log("working" + new Date());
@@ -46,10 +47,11 @@ export class ScanbarcodeComponent implements OnInit {
 
   startScanBarcode() {
     this.barcodescanner.scan({}).then((res) => {
-      console.log(res);
+      // console.log(res);
       this.isBarcodeScanned = true;
       if (JSON.parse(res.text)) {
-        this.scannedBarcodeItem = JSON.parse(res.text);
+        this.scannedBarcodeItem.barcode = res.text;
+        this.scannedBarcodeItem.barcodeType=res.format;
         this.onScan(this.scannedBarcodeItem);
       }
     });
@@ -114,7 +116,9 @@ export class ScanbarcodeComponent implements OnInit {
   onSaveEdit() {
     this.showEditForm = false;
     const result = this.findBarcodeInListIndex(this.activeBarcodeItem.barcode);
-    if (result && result > 0) {
+    console.log(this.activeBarcodeItem);
+    console.log(result);
+    if ( result >= 0) {
       this.isNewBarcode = false;
       console.log("we found index" + result);
       this.barcodeList[result] = this.activeBarcodeItem;

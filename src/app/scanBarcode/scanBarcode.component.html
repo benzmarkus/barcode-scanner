@@ -19,19 +19,21 @@
       <Label [text]="scannedBarcodeItem?.price" row="2" col="2"></Label>
     </GridLayout>
     <GridLayout
-      rows="auto,auto,auto"
+      rows="auto,auto,auto,auto"
       columns="auto,auto"
       *ngIf="isNewBarcode === false && !showEditForm"
     >
       <Label text="Known Barcode"></Label>
       <Label text="Title:" row="1"></Label>
       <Label text="Price:" row="2"></Label>
-      <Label [text]="activeBarcodeItem?.title" row="1" col="1"> </Label>
+      <Label text="Barcode:" row="3"></Label>
+      <Label [text]="activeBarcodeItem?.title" row="1" col="2"> </Label>
       <Label [text]="activeBarcodeItem?.price" row="2" col="2"></Label>
+      <Label [text]="activeBarcodeItem?.barcode" row="3" col="2"></Label>
     </GridLayout>
     <GridLayout rows="auto,auto" *ngIf="showEditForm">
-      <GridLayout columns="auto,30,auto">
-        <Label text="Title"></Label>
+      <GridLayout columns="auto,*" rows="auto">
+        <Label text="Title" verticalAlignment="middle"></Label>
         <TextField
           col="2"
           [(ngModel)]="activeBarcodeItem.title"
@@ -39,8 +41,8 @@
         >
         </TextField>
       </GridLayout>
-      <GridLayout columns="auto,30,auto" row="1">
-        <Label text="Price"></Label>
+      <GridLayout columns="auto,*" row="1">
+        <Label text="Price" verticalAlignment="middle"></Label>
         <TextField
           col="2"
           [(ngModel)]="activeBarcodeItem.price"
