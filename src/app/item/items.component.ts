@@ -75,7 +75,7 @@ export class ItemsComponent implements OnInit {
     this.activeBarcodeItem = item
     this.showEditForm = true
   }
-
+  // test commit
   onCancelEdit() {
     this.showEditForm = false;
   }
