@@ -1,7 +1,7 @@
 <ActionBar title="Home" class="primary-bg white-color"> </ActionBar>
 
 <GridLayout rows="*,auto" class="page-padding">
-  <GridLayout rows="auto,auto" *ngIf="showEditForm">
+  <GridLayout rows="auto,auto,auto,auto" *ngIf="showEditForm">
     <GridLayout columns="auto,30,*" rows="auto">
       <Label text="Title"  verticalAlignment="middle"></Label>
       <TextField
@@ -17,6 +17,22 @@
         col="2"
         [(ngModel)]="activeBarcodeItem.price"
         hint="Enter text..."
+      >
+      </TextField>
+    </GridLayout>
+    <GridLayout columns="auto,30,auto" rows="auto" row="2">
+      <Label text="Barcode"></Label>
+      <TextField
+        col="2"
+        [(ngModel)]="activeBarcodeItem.barcode"
+      >
+      </TextField>
+    </GridLayout>
+    <GridLayout columns="auto,30,auto" rows="auto" row="3">
+      <Label text="Type"></Label>
+      <TextField
+        col="2"
+        [(ngModel)]="activeBarcodeItem.barcodeType"
       >
       </TextField>
     </GridLayout>

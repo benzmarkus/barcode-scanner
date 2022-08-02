@@ -13,10 +13,10 @@
       *ngIf="isNewBarcode && !showEditForm"
     >
       <Label text="New Barcode"></Label>
-      <Label text="Title:" row="1"></Label>
-      <Label text="Price:" row="2"></Label>
-      <Label [text]="scannedBarcodeItem?.title" row="1" col="1"> </Label>
-      <Label [text]="scannedBarcodeItem?.price" row="2" col="2"></Label>
+      <Label text="Barcode:" row="1"></Label>
+      <Label text="Type:" row="2"></Label>
+      <Label [text]="scannedBarcodeItem?.barcode" row="1" col="1"> </Label>
+      <Label [text]="scannedBarcodeItem?.barcodeType" row="2" col="2"></Label>
     </GridLayout>
     <GridLayout
       rows="auto,auto,auto,auto"
@@ -50,6 +50,23 @@
         >
         </TextField>
       </GridLayout>
+      <GridLayout columns="auto,30,auto">
+        <Label text="Barcode"></Label>
+        <TextField
+          col="2"
+          [(ngModel)]="activeBarcodeItem.barcode"
+        >
+        </TextField>
+      </GridLayout>
+      <GridLayout columns="auto,30,auto">
+        <Label text="Type"></Label>
+        <TextField
+          col="2"
+          [(ngModel)]="activeBarcodeItem.barcodeType"
+        >
+        </TextField>
+      </GridLayout>
+
     </GridLayout>
   </StackLayout>
 

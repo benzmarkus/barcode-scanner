@@ -1,12 +1,8 @@
-import { Component, NgZone, OnInit } from "@angular/core";
-import { RouterExtensions } from "@nativescript/angular";
-import {
-  clear,
-  getString,
-  setString,
-} from "@nativescript/core/application-settings";
+import { Component, NgZone, OnInit } from '@angular/core';
+import { RouterExtensions } from '@nativescript/angular';
+import { getString, setString } from '@nativescript/core/application-settings';
+import { BarcodeScanner } from 'nativescript-barcodescanner';
 
-import { BarcodeScanner } from "nativescript-barcodescanner";
 @Component({
   selector: "Scanbarcode",
   moduleId: module.id,
@@ -49,11 +45,9 @@ export class ScanbarcodeComponent implements OnInit {
     this.barcodescanner.scan({}).then((res) => {
       // console.log(res);
       this.isBarcodeScanned = true;
-      if (JSON.parse(res.text)) {
-        this.scannedBarcodeItem.barcode = res.text;
-        this.scannedBarcodeItem.barcodeType=res.format;
-        this.onScan(this.scannedBarcodeItem);
-      }
+      this.scannedBarcodeItem.barcode = res.text;
+      this.scannedBarcodeItem.barcodeType=res.format;
+      this.onScan(this.scannedBarcodeItem);
     });
   }
 
