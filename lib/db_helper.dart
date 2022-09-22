@@ -11,7 +11,8 @@ class DBHelper {
         price REAL,
         barcode_type TEXT,
         barcode INTEGER NOT NULL UNIQUE,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP
       )
     """);
   }

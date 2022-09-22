@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-
 class Article {
   int? id;
   String? title;
