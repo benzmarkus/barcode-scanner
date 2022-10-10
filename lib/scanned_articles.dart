@@ -1,9 +1,12 @@
 import 'package:barcode_scanner/article_model.dart';
 import 'package:barcode_scanner/db_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:checkdigit/checkdigit.dart';
 
 class ScannedArticles extends StatefulWidget {
   const ScannedArticles({Key? key}) : super(key: key);
@@ -37,7 +40,10 @@ class _ScannedArticles extends State<ScannedArticles> {
     setState(() {
       _scanBarcode = barcodeScanRes;
     });
-
+    if (!ean13.validate(_scanBarcode)) {
+      print("EAN13 not valid");
+      return;
+    }
     // check if barcode already exists
     final int? exits =
         await DBHelper.findCountByBarcode(int.parse(_scanBarcode));
@@ -59,28 +65,108 @@ class _ScannedArticles extends State<ScannedArticles> {
     final SharedPreferences prefs = await _prefs;
     await prefs.setString("username", username);
     await prefs.setString("password", password);
+    var result = <Article>[];
+    if (article.isNotEmpty) {
+      article.forEach((element) => result.add(Article(
+          title: element.title,
+          price: element.price,
+          barcode: element.barcode,
+          barcodetype: element.barcodetype,
+          updatedAt: element.updatedAt)));
+    }
 
-    int result = await DBHelper.deleteAll();
-    List<Article> demo_articles = <Article>[
-      Article(
-          barcode: 978020137962,
-          barcodetype: "EN_13",
-          title: "Item 1",
-          price: 5.44),
-      Article(
-          barcode: 978020137963,
-          barcodetype: "EN_13",
-          title: "Item 2",
-          price: 4.4),
-      Article(
-          barcode: 978020137964,
-          barcodetype: "EN_13",
-          title: "Item 3",
-          price: 4)
-    ];
+    try {
+      final db = FirebaseFirestore.instance;
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: username, password: password);
 
-    demo_articles.forEach((article) async {
-      var int = await DBHelper.insert(article);
+      final articlesToCreate = <Article>[];
+      final articlesToUpdate = <Article>[];
+      final collection =
+          db.collection("users/${credential.user?.uid}/documents");
+
+      final event = await collection.get();
+      final articlesFromTheCloud = event.docs.isEmpty
+          ? List<Article>.empty()
+          : List<Article>.generate(
+              event.docs.length,
+              (index) => Article(
+                  title: event.docs[index]["title"],
+                  price: event.docs[index]["price"],
+                  barcodetype: event.docs[index]["barcodetype"],
+                  barcode: event.docs[index]["barcode"],
+                  updatedAt: DateTime.parse(event.docs[index]["updatedAt"])),
+            );
+      result.forEach((element) {
+        var foundInCloud = articlesFromTheCloud.isEmpty
+            ? <Article>[]
+            : articlesFromTheCloud.where((c) => c.barcode == element.barcode);
+        if (foundInCloud.isNotEmpty && element != null) {
+          if (foundInCloud.first.updatedAt != null &&
+              element.updatedAt != null) {
+            if (element.updatedAt?.isBefore(foundInCloud.first.updatedAt!) ??
+                false) {
+              element.updatedAt = foundInCloud.first.updatedAt;
+              element.price = foundInCloud.first.price;
+              element.title = foundInCloud.first.title;
+            } else {
+              articlesToUpdate.add(Article(
+                title: element.title,
+                price: element.price,
+                barcode: element.barcode,
+                barcodetype: element.barcodetype,
+                updatedAt: element.updatedAt));
+            }
+          } else {
+            if (element.updatedAt != null) {
+              element.updatedAt = foundInCloud.first.updatedAt;
+              element.price = foundInCloud.first.price;
+              element.title = foundInCloud.first.title;
+            }
+          }
+        } else {
+          articlesToCreate.add(element);
+        }
+      });
+      final batch = db.batch();
+      articlesToCreate.forEach((element) {
+        var nycRef = collection.doc();
+        final docToStore = element.toMap();
+        batch.set(nycRef, docToStore);
+      });
+      articlesToUpdate.forEach((element) {
+        final found =
+            event.docs.where((i) => i["barcode"] == element.barcode).toList();
+        if (found.isNotEmpty) {
+          var nycRef = collection.doc(found.first.id);
+          final docToStore = element.toMap();
+          batch.update(nycRef, docToStore);
+        }
+      });
+      await batch.commit();
+
+      if (articlesFromTheCloud.isNotEmpty) {
+        articlesFromTheCloud.forEach((element) {
+          final found = article.where((i) => i.barcode == element.barcode);
+          if (found.isEmpty) {
+            result.add(Article(
+                title: element.title,
+                price: element.price,
+                barcode: element.barcode,
+                barcodetype: element.barcodetype,
+                updatedAt: element.updatedAt));
+          }
+        });
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      FirebaseAuth.instance.signOut();
+    }
+    await DBHelper.deleteAll();
+
+    result.forEach((a) async {
+      await DBHelper.insert(a);
     });
     _loadArticles();
   }
@@ -110,7 +196,7 @@ class _ScannedArticles extends State<ScannedArticles> {
 
   @override
   Widget build(BuildContext context) {
-    // _loadArticles();
+    _loadArticles();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Scanned Articles"),
@@ -171,7 +257,7 @@ class _ScannedArticles extends State<ScannedArticles> {
                               IconButton(
                                 onPressed: () {
                                   _showDeleteAlert(
-                                      context, _foundArticles[index].id!);
+                                      context, _foundArticles[index].barcode!);
                                 },
                                 icon: const Icon(Icons.delete),
                               ),
@@ -192,11 +278,11 @@ class _ScannedArticles extends State<ScannedArticles> {
     );
   }
 
-  _showDeleteAlert(BuildContext context, int id) {
+  _showDeleteAlert(BuildContext context, int barcode) {
     Widget okButton = TextButton(
       onPressed: () async {
         Navigator.of(context).pop();
-        final result = await DBHelper.delete(id);
+        final result = await DBHelper.delete(barcode);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('article deleted'),

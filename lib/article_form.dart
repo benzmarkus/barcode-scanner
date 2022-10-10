@@ -110,7 +110,7 @@ class _ArticleForm extends State<ArticleForm> {
                               barcode: int.parse(barcodeContoller.text),
                               title: titleController.text,
                               price: double.parse(priceController.text),
-                              barcodetype: "EN_13");
+                              barcodetype: "EN_13", updatedAt: DateTime.now());
                           await DBHelper.insert(article);
 
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -120,11 +120,10 @@ class _ArticleForm extends State<ArticleForm> {
                           );
                         } else {
                           final Article article = Article(
-                              id: args.article.id,
                               barcode: int.parse(barcodeContoller.text),
                               title: titleController.text,
                               price: double.parse(priceController.text),
-                              barcodetype: "EN_13");
+                              barcodetype: "EN_13", updatedAt: DateTime.now());
 
                           await DBHelper.update(article);
                           ScaffoldMessenger.of(context).showSnackBar(

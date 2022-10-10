@@ -1,24 +1,25 @@
 class Article {
-  int? id;
   String? title;
   double? price;
   String? barcodetype;
   int? barcode;
+  DateTime? updatedAt;
 
-  Article({this.id, this.title, this.price, this.barcodetype, this.barcode});
+  Article({this.title, this.price, this.barcodetype, this.barcode, this.updatedAt});
 
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'price': price,
-      'barcode_type': barcodetype,
-      'barcode': barcode
+      'barcodetype': barcodetype,
+      'barcode': barcode,
+      'updatedAt': updatedAt.toString()
     };
   }
 
   @override
   String toString() {
-    return 'Article(id: $id, title:$title, price:$price, barcode_type:$barcodetype, barcode:$barcode';
+    return 'Article(title:$title, price:$price, barcodetype:$barcodetype, barcode:$barcode, updatedAt:$updatedAt';
   }
 }
 

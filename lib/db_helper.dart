@@ -6,13 +6,11 @@ class DBHelper {
   static Future<void> createArticleTable(sql.Database database) async {
     await database.execute("""
       CREATE TABLE articles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         title TEXT,
         price REAL,
-        barcode_type TEXT,
-        barcode INTEGER NOT NULL UNIQUE,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP
+        barcodetype TEXT,
+        barcode INTEGER PRIMARY KEY NOT NULL,
+        updatedAt TEXT
       )
     """);
   }
@@ -27,12 +25,12 @@ class DBHelper {
 
   static Future<int> insert(Article article) async {
     final db = await DBHelper.db();
-    final id = await db.insert(
+    final barcode = await db.insert(
       "articles",
       article.toMap(),
       conflictAlgorithm: sql.ConflictAlgorithm.replace,
     );
-    return id;
+    return barcode;
   }
 
   static Future<int> update(Article article) async {
@@ -40,18 +38,18 @@ class DBHelper {
     final result = await db.update(
       "articles",
       article.toMap(),
-      where: 'id=?',
-      whereArgs: [article.id],
+      where: 'barcode=?',
+      whereArgs: [article.barcode],
     );
     return result;
   }
 
-  static Future<int> delete(int id) async {
+  static Future<int> delete(int barcode) async {
     final db = await DBHelper.db();
     final result = await db.delete(
       "articles",
-      where: 'id=?',
-      whereArgs: [id],
+      where: 'barcode=?',
+      whereArgs: [barcode],
     );
     return result;
   }
@@ -66,37 +64,19 @@ class DBHelper {
     final db = await DBHelper.db();
     final List<Map<String, dynamic>> articles = await db.query(
       "articles",
-      orderBy: "id",
+      orderBy: "title",
     );
+    if (articles.isEmpty) {
+      return List<Article>.empty();
+    }
     final result = List.generate(
       articles.length,
       (index) => Article(
-          id: articles[index]["id"],
           title: articles[index]["title"],
           price: articles[index]["price"],
           barcodetype: articles[index]["barcodetype"],
-          barcode: articles[index]["barcode"]),
-    );
-    return result;
-  }
-
-  static Future<List<Article>> findById(int id) async {
-    final db = await DBHelper.db();
-    final List<Map<String, dynamic>> articles = await db.query(
-      "articles",
-      orderBy: "id",
-      where: "id=?",
-      whereArgs: [id],
-      limit: 1,
-    );
-    final result = List.generate(
-      articles.length,
-      (index) => Article(
-          id: articles[index]["id"],
-          title: articles[index]["title"],
-          price: articles[index]["price"],
-          barcodetype: articles[index]["barcodetype"],
-          barcode: articles[index]["barcode"]),
+          barcode: articles[index]["barcode"],
+          updatedAt: DateTime.parse(articles[index]["updatedAt"])),
     );
     return result;
   }
@@ -105,7 +85,7 @@ class DBHelper {
     final db = await DBHelper.db();
     final List<Map<String, dynamic>> articles = await db.query(
       "articles",
-      orderBy: "id",
+      orderBy: "title",
       where: "barcode=?",
       whereArgs: [barcode],
       limit: 1,
@@ -113,11 +93,11 @@ class DBHelper {
     final result = List.generate(
       articles.length,
       (index) => Article(
-          id: articles[index]["id"],
           title: articles[index]["title"],
           price: articles[index]["price"],
           barcodetype: articles[index]["barcodetype"],
-          barcode: articles[index]["barcode"]),
+          barcode: articles[index]["barcode"],
+          updatedAt: DateTime.parse(articles[index]["updatedAt"])),
     );
     return result;
   }
