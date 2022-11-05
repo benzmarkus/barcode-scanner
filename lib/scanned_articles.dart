@@ -20,6 +20,7 @@ class _ScannedArticles extends State<ScannedArticles> {
   List<Article> _foundArticles = <Article>[];
 
   String _scanBarcode = 'Unknown';
+  String _barcodetype = '';
   bool isLoading = true;
   TextEditingController _unameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
@@ -30,7 +31,6 @@ class _ScannedArticles extends State<ScannedArticles> {
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-      // print(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -40,10 +40,18 @@ class _ScannedArticles extends State<ScannedArticles> {
     setState(() {
       _scanBarcode = barcodeScanRes;
     });
-    if (!ean13.validate(_scanBarcode)) {
-      print("EAN13 not valid");
+    if (!ean8.validate(_scanBarcode) && !ean13.validate(_scanBarcode)) {
+      print("EAN8/EAN13 not valid");
       return;
     }
+
+    if (ean8.validate(_scanBarcode)) {
+      _barcodetype = "EAN8";
+    }
+    if (ean13.validate(_scanBarcode)) {
+      _barcodetype = "EAN13";
+    }
+    
     // check if barcode already exists
     final int? exits =
         await DBHelper.findCountByBarcode(int.parse(_scanBarcode));
@@ -78,7 +86,7 @@ class _ScannedArticles extends State<ScannedArticles> {
     try {
       final db = FirebaseFirestore.instance;
       final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: username, password: password);
+          .signInWithEmailAndPassword(email: username.trim().toLowerCase(), password: password.trim());
 
       final articlesToCreate = <Article>[];
       final articlesToUpdate = <Article>[];
@@ -320,7 +328,7 @@ class _ScannedArticles extends State<ScannedArticles> {
           "/form",
           arguments: RouteArguments(
               article: Article(
-                  barcode: int.parse(_scanBarcode), price: 0, title: ""),
+                  barcode: int.parse(_scanBarcode), price: 0, title: "", barcodetype: _barcodetype),
               method: "ADD"),
         ).whenComplete(() => {
               setState(

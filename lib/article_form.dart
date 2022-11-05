@@ -63,7 +63,7 @@ class _ArticleForm extends State<ArticleForm> {
                   labelText: 'Barcode Type',
                 ),
                 enabled: false,
-                initialValue: "EN_13",
+                initialValue: args.article.barcodetype,
               ),
               TextFormField(
                   decoration: const InputDecoration(
@@ -110,7 +110,7 @@ class _ArticleForm extends State<ArticleForm> {
                               barcode: int.parse(barcodeContoller.text),
                               title: titleController.text,
                               price: double.parse(priceController.text),
-                              barcodetype: "EN_13", updatedAt: DateTime.now());
+                              barcodetype: args.article.barcodetype, updatedAt: DateTime.now());
                           await DBHelper.insert(article);
 
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +123,7 @@ class _ArticleForm extends State<ArticleForm> {
                               barcode: int.parse(barcodeContoller.text),
                               title: titleController.text,
                               price: double.parse(priceController.text),
-                              barcodetype: "EN_13", updatedAt: DateTime.now());
+                              barcodetype: args.article.barcodetype, updatedAt: DateTime.now());
 
                           await DBHelper.update(article);
                           ScaffoldMessenger.of(context).showSnackBar(
