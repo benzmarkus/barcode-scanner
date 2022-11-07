@@ -190,8 +190,9 @@ class _ScannedArticles extends State<ScannedArticles> {
 
   onSearch(String v) {
     setState(() {
+      var searchString = v.toLowerCase();
       _foundArticles = _articles
-          .where((article) => article.title!.toLowerCase().contains(v))
+          .where((article) => article.title!.toLowerCase().contains(searchString))
           .toList();
     });
   }
@@ -204,7 +205,6 @@ class _ScannedArticles extends State<ScannedArticles> {
 
   @override
   Widget build(BuildContext context) {
-    _loadArticles();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Scanned Articles"),
